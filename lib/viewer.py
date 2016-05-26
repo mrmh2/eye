@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Simple viewer for images in a directory."""
 import os
 import os.path
@@ -211,6 +212,17 @@ class Viewer(object):
         running = True
         event = SDL_Event()
         while running:
+	    
+	    keystate = SDL_GetKeyboardState(None)
+	    if keystate[sdl2.SDL_SCANCODE_L]:
+		self.move_right()
+	    if keystate[sdl2.SDL_SCANCODE_H]:
+		self.move_left()
+	    if keystate[sdl2.SDL_SCANCODE_K]:
+		self.move_up()
+	    if keystate[sdl2.SDL_SCANCODE_J]:
+		self.move_down()
+	    
             while SDL_PollEvent(ctypes.byref(event)) != 0:
                 if event.type == SDL_QUIT:
                     running = False
@@ -224,22 +236,21 @@ class Viewer(object):
                         self.zoom_in()
                     if event.key.keysym.sym == sdl2.SDLK_DOWN:
                         self.zoom_out()
-                    if event.key.keysym.sym == sdl2.SDLK_l:
-                        self.move_right()
-                    if event.key.keysym.sym == sdl2.SDLK_h:
-                        self.move_left()
-                    if event.key.keysym.sym == sdl2.SDLK_k:
-                        self.move_up()
-                    if event.key.keysym.sym == sdl2.SDLK_j:
-                        self.move_down()
+		
+		if event.type == SDL_MOUSEWHEEL:
+		    if event.wheel.y > 0:
+			self.zoom_in()
+		    if event.wheel.y < 0:
+			self.zoom_out()
+
                 if event.type == SDL_MOUSEBUTTONDOWN:
                     if event.button.button == SDL_BUTTON_LEFT:
                         ix, iy = self._view.image_coordinate(event.button.x, event.button.y)
-                        print("x: {}, y: {}".format(ix, iy))
+                        print "x: %i, y: %i"%(ix, iy)
 
 
-        SDL_DestroyWindow(window)
-        SDL_Quit()
+        SDL_DestroyWindow(self.window)
+	sdl2.ext.quit()
         return 0
 
 if __name__ == "__main__":
